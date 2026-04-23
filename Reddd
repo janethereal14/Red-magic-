@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Red Magic Project</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #0d0000; /* Darker red-black background */
+            color: #ff4d4d; /* Bright red text */
+            font-family: 'Courier New', Courier, monospace;
+            overflow-x: hidden;
+            min-height: 250vh; 
+        }
+
+        #heart-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .content {
+            position: relative;
+            z-index: 10;
+            padding: 50px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .para {
+            margin-bottom: 350px;
+            font-size: 1.6rem;
+            text-align: center;
+            width: 90%;            /* Give text more room */
+            max-width: 900px;      /* Prevent it from getting too wide */
+            word-break: keep-all;  /* STOPS WORDS FROM BREAKING */
+            overflow-wrap: normal;
+            line-height: 1.6;
+        }
+
+        .char {
+            display: inline-block;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+            color: #ff4d4d;
+            text-shadow: 0 0 8px #ff000033; /* Soft red glow */
+        }
+
+        .char.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .char.space {
+            width: 0.35em; /* Proper spacing between words */
+        }
+
+        .heart {
+            position: fixed;
+            top: -10%;
+            user-select: none;
+            pointer-events: none;
+            animation: fall linear forwards;
+        }
+
+        @keyframes fall {
+            to {
+                transform: translateY(110vh) rotate(360deg);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <audio id="bg-music" loop>
+        <source src="https://drive.google.com/uc?export=download&id=1To-7W1vjX0PS6ryVO2AIdt6nk85aIdsm" type="audio">
+    </audio>
+
+    <div id="heart-container"></div>
+
+    <div class="content">
+        <div class="para" data-text="Scroll down slowly!"></div>
+        <div class="para" data-text="Welcome to my red project."></div>
+        <div class="para" data-text="I hope it turns out really good as I have expected."></div>
+        <div class="para" data-text="Hi mummy! How ya doing? Isn't this fun huh?"></div>
+        <div class="para" data-text="If you like this magic of mine, please send a ❤️"></div>
+    </div>
+
+    <script>
+        // 1. HEAVY RED HEART RAIN
+        function createHeart() {
+            const container = document.getElementById('heart-container');
+            const heart = document.createElement('div');
+            heart.classList.add('heart');
+            heart.innerHTML = '❤️';
+            
+            heart.style.left = Math.random() * 100 + "vw";
+            heart.style.fontSize = Math.random() * 15 + 10 + "px";
+            
+            const duration = Math.random() * 3 + 2;
+            heart.style.animationDuration = duration + "s";
+            
+            container.appendChild(heart);
+            setTimeout(() => { heart.remove(); }, duration * 1000);
+        }
+        setInterval(createHeart, 80); // Fast rain!
+
+        // 2. TYPEWRITER LOGIC
+        const paragraphs = document.querySelectorAll('.para');
+        paragraphs.forEach(p => {
+            const text = p.getAttribute('data-text');
+            p.innerHTML = ''; 
+
+            text.split('').forEach(char => {
+                const span = document.createElement('span');
+                span.classList.add('char');
+                if (char === ' ') span.classList.add('space');
+                span.textContent = char;
+                p.appendChild(span);
+            });
+        });
+
+        // 3. SCROLL REVEAL & MUSIC START
+        const music = document.getElementById('bg-music');
+        let musicStarted = false;
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    // Start music on first scroll
+                    if(!musicStarted) {
+                        music.play();
+                        musicStarted = true;
+                    }
+
+                    const chars = entry.target.querySelectorAll('.char');
+                    chars.forEach((char, index) => {
+                        setTimeout(() => {
+                            char.classList.add('visible');
+                        }, index * 60); 
+                    });
+                }
+            });
+        }, { threshold: 0.5 });
+
+        paragraphs.forEach(p => observer.observe(p));
+    </script>
+</body>
+</html>
